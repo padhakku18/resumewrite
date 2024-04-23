@@ -951,309 +951,383 @@ const GenerateForm = () => {
         }
     }
     const getProfessionalSummary = (lines) => {
-        let idx = 0;
         let summary = "";
-        while (idx < lines.length) {
-            if (lines[idx].toLowerCase().includes("professional")) {
-                summary += selectTextAfterLetter(":", lines[idx]);
+        try {
+            let idx = 0;
+            while (idx < lines.length) {
+                if (lines[idx].toLowerCase().includes("professional")) {
+                    summary += selectTextAfterLetter(":", lines[idx]);
+                    idx++;
+                    break;
+                }
                 idx++;
-                break;
             }
-            idx++;
-        }
-        while (idx < lines.length && !(lines[idx].match(/\b[A-Z]+\:/g))) {
-            summary += lines[idx].trim();
-            idx++;
+            while (idx < lines.length && !(lines[idx].match(/\b[A-Z]+\:/g))) {
+                summary += lines[idx].trim();
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
         }
         return summary;
     }
     const getExperience = (text) => {
         const experience = [];
-        const experienceMatches = text.match(/EXPERIENCE:(.*)/si);
-        if (!experienceMatches)
-            return [];
-        const experienceText = experienceMatches ? experienceMatches[1] : '';
-        // console.log(experienceText);
+        try {
+            const experienceMatches = text.match(/EXPERIENCE:(.*)/si);
+            if (!experienceMatches)
+                return [];
+            const experienceText = experienceMatches ? experienceMatches[1] : '';
+            // console.log(experienceText);
 
-        // const lowercaseText = experienceText.toLowerCase();
-        const lowercaseText = experienceText;
-        const parts = lowercaseText.split(/Job\d+/g);
+            // const lowercaseText = experienceText.toLowerCase();
+            const lowercaseText = experienceText;
+            const parts = lowercaseText.split(/Job\d+/g);
 
-        // const experienceEntries = experienceText.split('Job');
-        const experienceEntries = parts.map((part, index) => {
-            if (index !== parts.length - 1) {
-                return part + "Job";
-            } else {
-                return part;
-            }
-        });
-        experienceEntries.shift(); // Remove empty entry
-        // console.log(experienceEntries);
-        experienceEntries.forEach(entry => {
-            const entryLines = entry.split('\n').filter(str => str.trim() !== "");
-            const profileName = entry.match(/Profile Name(\d*): (.*)/i)[2];
-            const companyName = entry.match(/Company Name(\d*): (.*)/i)[2];
-            const date = entry.match(/date(\d*): (.*)/i)[2];
-            const bulletPoints = [];
-            let idx = 0;
-            while (idx < entryLines.length) {
-                if (entryLines[idx].toLowerCase().includes("bullet")) {
-                    idx++;
-                    break;
+            // const experienceEntries = experienceText.split('Job');
+            const experienceEntries = parts.map((part, index) => {
+                if (index !== parts.length - 1) {
+                    return part + "Job";
+                } else {
+                    return part;
                 }
-                idx++;
-            }
-            while (idx < entryLines.length) {
-                // console.log(entryLines[idx]);
-                if (entryLines[idx].match(/\b[A-Z]+\:/g) || entryLines[idx].toLowerCase().includes("additional") || entryLines[idx].toLowerCase().trim() == "job") {
-                    break;
-                }
-                // console.log(entryLines[idx].match(/\b[A-Z]+\:/g));
-                if (entryLines[idx].toLowerCase()[0] == '-')
-                    bulletPoints.push(selectTextAfterLetter("-", entryLines[idx]));
-                else
-                    bulletPoints.push(selectTextAfterLetter(".", entryLines[idx]));
-                idx++;
-            }
-            const additionalPoints = [];
-            if (idx < entryLines.length && entryLines[idx].toLowerCase().includes("additional")) {
-                idx++;
+            });
+            experienceEntries.shift(); // Remove empty entry
+            // console.log(experienceEntries);
+            experienceEntries.forEach(entry => {
+                const entryLines = entry.split('\n').filter(str => str.trim() !== "");
+                const profileName = entry.match(/Profile Name(\d*): (.*)/i)[2];
+                const companyName = entry.match(/Company Name(\d*): (.*)/i)[2];
+                const date = entry.match(/date(\d*): (.*)/i)[2];
+                const bulletPoints = [];
+                let idx = 0;
                 while (idx < entryLines.length) {
-                    if (entryLines[idx].toLowerCase()[0] != '-' && !(entryLines[idx].toLowerCase()[0] >= 1 || entryLines[idx].toLowerCase()[0] <= 9)) {
+                    if (entryLines[idx].toLowerCase().includes("bullet")) {
                         idx++;
                         break;
                     }
-                    if (entryLines[idx].toLowerCase()[0] == '-')
-                        additionalPoints.push(selectTextAfterLetter("-", entryLines[idx]));
-                    else
-                        additionalPoints.push(selectTextAfterLetter(".", entryLines[idx]));
                     idx++;
                 }
-            }
-            experience.push({ profileName, companyName, date, bulletPoints, additionalPoints });
-        });
+                while (idx < entryLines.length) {
+                    // console.log(entryLines[idx]);
+                    if (entryLines[idx].match(/\b[A-Z]+\:/g) || entryLines[idx].toLowerCase().includes("additional") || entryLines[idx].toLowerCase().trim() == "job") {
+                        break;
+                    }
+                    // console.log(entryLines[idx].match(/\b[A-Z]+\:/g));
+                    if (entryLines[idx].toLowerCase()[0] == '-')
+                        bulletPoints.push(selectTextAfterLetter("-", entryLines[idx]));
+                    else
+                        bulletPoints.push(selectTextAfterLetter(".", entryLines[idx]));
+                    idx++;
+                }
+                const additionalPoints = [];
+                if (idx < entryLines.length && entryLines[idx].toLowerCase().includes("additional")) {
+                    idx++;
+                    while (idx < entryLines.length) {
+                        if (entryLines[idx].toLowerCase()[0] != '-' && !(entryLines[idx].toLowerCase()[0] >= 1 || entryLines[idx].toLowerCase()[0] <= 9)) {
+                            idx++;
+                            break;
+                        }
+                        if (entryLines[idx].toLowerCase()[0] == '-')
+                            additionalPoints.push(selectTextAfterLetter("-", entryLines[idx]));
+                        else
+                            additionalPoints.push(selectTextAfterLetter(".", entryLines[idx]));
+                        idx++;
+                    }
+                }
+                experience.push({ profileName, companyName, date, bulletPoints, additionalPoints });
+            });
+        } catch (error) {
+            console.log(error);
+        }
         // console.log(experience);
         return experience;
     }
     const getInternshipExperience = (text) => {
         const Internships = [];
-        const IntershipMatches = text.match(/INTERNSHIP EXPERIENCE:(.*)/si);
-        // console.log(text);
-        if (!IntershipMatches)
-            return [];
-        const internshipText = IntershipMatches ? IntershipMatches[1] : '';
-        // console.log(internshipText);
-        // const lowercaseText = internshipText.toLowerCase();
-        const lowercaseText = internshipText;
-        const parts = lowercaseText.split("Internship");
+        try {
 
-        // const internshipEnteries = internshipText.split('Internship');
-        const internshipEnteries = parts.map((part, index) => {
-            if (index !== parts.length - 1) {
-                return part + "Internship";
-            } else {
-                return part;
-            }
-        });
-        internshipEnteries.shift(); // Remove empty entry
-        internshipEnteries.forEach(entry => {
-            // console.log(entry);
-            const entryLines = entry.split('\n').filter(str => str.trim() !== "");
-            const profileName = entry.match(/Profile Name(\d*): (.*)/i)[2];
-            const companyName = entry.match(/Company Name(\d*): (.*)/i)[2];
-            const date = entry.match(/date(\d*): (.*)/i)[2];
-            const bulletPoints = [];
-            let idx = 0;
-            while (idx < entryLines.length) {
-                if (entryLines[idx].toLowerCase().includes("bullet")) {
-                    idx++;
-                    break;
+
+            const IntershipMatches = text.match(/INTERNSHIP EXPERIENCE:(.*)/si);
+            // console.log(text);
+            if (!IntershipMatches)
+                return [];
+            const internshipText = IntershipMatches ? IntershipMatches[1] : '';
+            // console.log(internshipText);
+            // const lowercaseText = internshipText.toLowerCase();
+            const lowercaseText = internshipText;
+            const parts = lowercaseText.split(/Internship\s+(\d+)/);
+
+            // const internshipEnteries = internshipText.split('Internship');
+            const internshipEnteries = parts.map((part, index) => {
+                if (index !== parts.length - 1) {
+                    return part + "Internship";
+                } else {
+                    return part;
                 }
-                idx++;
-            }
-            while (idx < entryLines.length) {
-                if (entryLines[idx].match(/\b[A-Z]+\:/g) || entryLines[idx].toLowerCase().includes("additional") || entryLines[idx].toLowerCase().trim() == "internship") {
-                    break;
-                }
-                if (entryLines[idx].toLowerCase()[0] == '-')
-                    bulletPoints.push(selectTextAfterLetter("-", entryLines[idx]));
-                else
-                    bulletPoints.push(selectTextAfterLetter(".", entryLines[idx]));
-                idx++;
-            }
-            const additionalPoints = [];
-            if (idx < entryLines.length && entryLines[idx].toLowerCase().includes("additional")) {
-                idx++;
+            });
+            internshipEnteries.shift(); // Remove empty entry
+            // console.log(parts);
+            internshipEnteries.forEach(entry => {
+                // console.log(entry);
+                const entryLines = entry.split('\n').filter(str => str.trim() !== "");
+                let profileName = "", companyName = "", date = "";
+                if (entry.match(/Profile Name(\d*): (.*)/i))
+                    profileName = entry.match(/Profile Name(\d*): (.*)/i)[2];
+                if (entry.match(/Company Name(\d*): (.*)/i))
+                    companyName = entry.match(/Company Name(\d*): (.*)/i)[2];
+                if (entry.match(/date(\d*): (.*)/i))
+                    date = entry.match(/date(\d*): (.*)/i)[2];
+                const bulletPoints = [];
+                let idx = 0;
                 while (idx < entryLines.length) {
-                    if (entryLines[idx].toLowerCase()[0] != '-' && !(entryLines[idx].toLowerCase()[0] >= 1 || entryLines[idx].toLowerCase()[0] <= 9)) {
+                    if (entryLines[idx].toLowerCase().includes("bullet")) {
                         idx++;
                         break;
                     }
-                    if (entryLines[idx].toLowerCase()[0] == '-')
-                        additionalPoints.push(selectTextAfterLetter("-", entryLines[idx]));
-                    else
-                        additionalPoints.push(selectTextAfterLetter(".", entryLines[idx]));
                     idx++;
                 }
-            }
-            Internships.push({ profileName, companyName, date, bulletPoints, additionalPoints });
-        });
+                while (idx < entryLines.length) {
+                    if (entryLines[idx].match(/\b[A-Z]+\:/g) || entryLines[idx].toLowerCase().includes("additional") || entryLines[idx].toLowerCase().trim() == "internship") {
+                        break;
+                    }
+                    if (entryLines[idx].toLowerCase()[0] == '-')
+                        bulletPoints.push(selectTextAfterLetter("-", entryLines[idx]));
+                    else
+                        bulletPoints.push(selectTextAfterLetter(".", entryLines[idx]));
+                    idx++;
+                }
+                const additionalPoints = [];
+                if (idx < entryLines.length && entryLines[idx].toLowerCase().includes("additional")) {
+                    idx++;
+                    while (idx < entryLines.length) {
+                        if (entryLines[idx].toLowerCase()[0] != '-' && !(entryLines[idx].toLowerCase()[0] >= 1 || entryLines[idx].toLowerCase()[0] <= 9)) {
+                            idx++;
+                            break;
+                        }
+                        if (entryLines[idx].toLowerCase()[0] == '-')
+                            additionalPoints.push(selectTextAfterLetter("-", entryLines[idx]));
+                        else
+                            additionalPoints.push(selectTextAfterLetter(".", entryLines[idx]));
+                        idx++;
+                    }
+                }
+                Internships.push({ profileName, companyName, date, bulletPoints, additionalPoints });
+            });
+        } catch (error) {
+            console.log(error);
+        }
         // console.log(Internships);
         return Internships;
     }
     const getEducation = (text) => {
         const Educations = [];
-        const EducationMatches = text.match(/EDUCATION:(.*)/si);
-        if (!EducationMatches)
-            return [];
-        const EducationText = EducationMatches ? EducationMatches[1] : '';
-        const lines = EducationText.split('\n').filter(str => str.trim() !== "");
-        let idx = 0;
-        while (idx < lines.length) {
-            if (lines[idx].toLowerCase().includes("name")) {
-                const edu = {
-                    collegeName: selectTextAfterLetter(":", lines[idx]),
-                    courseName: selectTextAfterLetter(":", lines[idx + 1]),
-                    dates: selectTextAfterLetter(":", lines[idx + 2])
+        try {
+
+            const EducationMatches = text.match(/EDUCATION:(.*)/si);
+            if (!EducationMatches)
+                return [];
+            const EducationText = EducationMatches ? EducationMatches[1] : '';
+            const lines = EducationText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (lines[idx].toLowerCase().includes("name")) {
+                    const edu = {
+                        collegeName: selectTextAfterLetter(":", lines[idx]),
+                        courseName: selectTextAfterLetter(":", lines[idx + 1]),
+                        dates: selectTextAfterLetter(":", lines[idx + 2])
+                    }
+                    idx += 3;
+                    if (lines[idx].toLowerCase().includes("gpa") || lines[idx].toLowerCase().includes("cgpa")) {
+                        edu.marks = selectTextAfterLetter(":", lines[idx]);
+                        idx++;
+                    }
+                    // console.log(edu);
+                    Educations.push(edu);
                 }
-                idx += 3;
-                if (lines[idx].toLowerCase().includes("gpa") || lines[idx].toLowerCase().includes("cgpa")) {
-                    edu.marks = selectTextAfterLetter(":", lines[idx]);
-                    idx++;
-                }
-                // console.log(edu);
-                Educations.push(edu);
+                else
+                    break;
             }
-            else
-                break;
+        } catch (error) {
+            console.log(error);
         }
         return Educations;
     }
     const getCertification = (text) => {
         const Certifications = [];
-        let CertificationMatches = text.match(/CERTIFICATIONS:(.*)/si);
-        if (!CertificationMatches)
-            CertificationMatches = text.match(/CERTIFICATES:(.*)/si);
-        const certificationText = CertificationMatches ? CertificationMatches[1] : '';
-        const lines = certificationText.split('\n').filter(str => str.trim() !== "");
-        let idx = 0;
-        while (idx < lines.length) {
-            if (lines[idx].toLowerCase().includes(":"))
-                break;
-            Certifications.push(selectTextAfterLetter("-", lines[idx]));
-            idx++;
+        try {
+
+
+            let CertificationMatches = text.match(/CERTIFICATIONS:(.*)/si);
+            if (!CertificationMatches)
+                CertificationMatches = text.match(/CERTIFICATES:(.*)/si);
+            const certificationText = CertificationMatches ? CertificationMatches[1] : '';
+            const lines = certificationText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (lines[idx].toLowerCase().includes(":"))
+                    break;
+                Certifications.push(selectTextAfterLetter("-", lines[idx]));
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
         }
         // console.log(Certifications);
         return Certifications;
     }
     const getProjects = (text) => {
         const projects = [];
-        let projectMatches = text.match(/PROJECTS:(.*)/si);
-        // console.log(projectMatches);
-        if (!projectMatches)
-            projectMatches = text.match(/PROJECT:(.*)/si);
-        const projectText = projectMatches ? projectMatches[1] : '';
-        const lowercaseText = projectText.toLowerCase();
-        const parts = lowercaseText.split(/project name\d+/gi);
+        try {
+            let projectMatches = text.match(/PROJECTS:(.*)/si);
+            // console.log(projectMatches);
+            if (!projectMatches)
+                projectMatches = text.match(/PROJECT:(.*)/si);
+            const projectText = projectMatches ? projectMatches[1] : '';
+            const lowercaseText = projectText.toLowerCase();
+            const parts = lowercaseText.split(/project name\d+/gi);
 
-        const projectEnteries = parts.map((part, index) => {
-            if (index !== parts.length - 1) {
-                return part + "project name";
-            } else {
-                return part;
-            }
-        });
-        for (let i = 1; i < projectEnteries.length; i++) {
-            // console.log(projectEnteries[i]);
-            const lines = projectEnteries[i].split('\n').filter(str => str.trim() !== "");
-            let idx = 0;
-            // console.log(lines);
-            const proj = {
-                projectName: "",
-                date: "",
-                projectDetails: [],
-            }
-            proj.projectName = selectTextAfterLetter(":", lines[idx]);
-            idx++;
-            if (idx < lines.length) {
-                proj.date = selectTextAfterLetter(":", lines[idx]);
+            const projectEnteries = parts.map((part, index) => {
+                if (index !== parts.length - 1) {
+                    return part + "project name";
+                } else {
+                    return part;
+                }
+            });
+            for (let i = 1; i < projectEnteries.length; i++) {
+                // console.log(projectEnteries[i]);
+                const lines = projectEnteries[i].split('\n').filter(str => str.trim() !== "");
+                let idx = 0;
+                // console.log(lines);
+                const proj = {
+                    projectName: "",
+                    date: "",
+                    projectDetails: [],
+                }
+                proj.projectName = selectTextAfterLetter(":", lines[idx]);
                 idx++;
-            }
-            if (idx < lines.length && lines[idx].toLowerCase().includes("detail")) {
-                idx++;
-                while (idx < lines.length && (lines[idx].trim()[0] == '-')) {
-                    proj.projectDetails.push(selectTextAfterLetter("-", lines[idx]));
+                if (idx < lines.length && lines[idx].toLowerCase().includes("date")) {
+                    proj.date = selectTextAfterLetter(":", lines[idx]);
                     idx++;
                 }
+                if (idx < lines.length && lines[idx].toLowerCase().includes("detail")) {
+                    idx++;
+                    while (idx < lines.length && (lines[idx].trim()[0] == '-')) {
+                        proj.projectDetails.push(selectTextAfterLetter("-", lines[idx]));
+                        idx++;
+                    }
+                }
+                projects.push(proj);
+                // console.log(proj);
             }
-            projects.push(proj);
-            // console.log(proj);
+        } catch (error) {
+            console.log(error);
         }
         return projects;
     }
     const getSkills = (text) => {
         const skills = [];
-        const skillMatches = text.match(/SKILLS:(.*)/si);
-        if (!skillMatches)
-            return [];
-        const skillText = skillMatches ? skillMatches[1] : '';
-        const lines = skillText.split('\n').filter(str => str.trim() !== "");
-        let idx = 0;
-        while (idx < lines.length) {
-            if (!lines[idx].toLowerCase().includes("-"))
-                break;
-            skills.push(selectTextAfterLetter("-", lines[idx]));
-            idx++;
+        try {
+            const skillMatches = text.match(/SKILLS:(.*)/si);
+            if (!skillMatches)
+                return [];
+            const skillText = skillMatches ? skillMatches[1] : '';
+            const lines = skillText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (!lines[idx].toLowerCase().includes("-"))
+                    break;
+                skills.push(selectTextAfterLetter("-", lines[idx]));
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
         }
         return skills;
     }
     const getAchievments = (text) => {
         const achievements = [];
-        const achievementMatches = text.match(/ACHIEVEMENTS:(.*)/si);
-        if (!achievementMatches)
-            return [];
-        const achievementText = achievementMatches ? achievementMatches[1] : '';
-        const lines = achievementText.split('\n').filter(str => str.trim() !== "");
-        let idx = 0;
-        while (idx < lines.length) {
-            if (!lines[idx].toLowerCase().includes("-"))
-                break;
-            achievements.push(selectTextAfterLetter("-", lines[idx]));
-            idx++;
+        try {
+
+
+            const achievementMatches = text.match(/ACHIEVEMENTS:(.*)/si);
+            if (!achievementMatches)
+                return [];
+            const achievementText = achievementMatches ? achievementMatches[1] : '';
+            const lines = achievementText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (!lines[idx].toLowerCase().includes("-"))
+                    break;
+                achievements.push(selectTextAfterLetter("-", lines[idx]));
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
         }
         return achievements;
     }
     const getLanguages = (text) => {
         const achievements = [];
-        const achievementMatches = text.match(/LANGUAGES:(.*)/si);
-        if (!achievementMatches)
-            return [];
-        const achievementText = achievementMatches ? achievementMatches[1] : '';
-        const lines = achievementText.split('\n').filter(str => str.trim() !== "");
-        let idx = 0;
-        while (idx < lines.length) {
-            if (!lines[idx].toLowerCase().includes("-"))
-                break;
-            achievements.push(selectTextAfterLetter("-", lines[idx]));
-            idx++;
+        try {
+            const achievementMatches = text.match(/LANGUAGES:(.*)/si);
+            if (!achievementMatches)
+                return [];
+            const achievementText = achievementMatches ? achievementMatches[1] : '';
+            const lines = achievementText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (!lines[idx].toLowerCase().includes("-"))
+                    break;
+                achievements.push(selectTextAfterLetter("-", lines[idx]));
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
         }
         return achievements;
     }
     const getComputerSkills = (text) => {
         const achievements = [];
-        const achievementMatches = text.match(/COMPUTER SKILLS:(.*)/si);
-        if (!achievementMatches)
-            return [];
-        const achievementText = achievementMatches ? achievementMatches[1] : '';
-        const lines = achievementText.split('\n').filter(str => str.trim() !== "");
-        let idx = 0;
-        while (idx < lines.length) {
-            if (!lines[idx].toLowerCase().includes("-"))
-                break;
-            achievements.push(selectTextAfterLetter("-", lines[idx]));
-            idx++;
+        try {
+            const achievementMatches = text.match(/COMPUTER SKILLS:(.*)/si);
+            if (!achievementMatches)
+                return [];
+            const achievementText = achievementMatches ? achievementMatches[1] : '';
+            const lines = achievementText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (!lines[idx].toLowerCase().includes("-"))
+                    break;
+                achievements.push(selectTextAfterLetter("-", lines[idx]));
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
         }
         return achievements;
+    }
+    const getInterests = (text) => {
+        const Interests = [];
+        try {
+
+
+            const achievementMatches = text.match(/INTERESTS:(.*)/si);
+            if (!achievementMatches)
+                return [];
+            const achievementText = achievementMatches ? achievementMatches[1] : '';
+            const lines = achievementText.split('\n').filter(str => str.trim() !== "");
+            let idx = 0;
+            while (idx < lines.length) {
+                if (!lines[idx].toLowerCase().includes("-"))
+                    break;
+                Interests.push(selectTextAfterLetter("-", lines[idx]));
+                idx++;
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        return Interests;
     }
     const handleSubmit2 = async (e) => {
         e.preventDefault();
@@ -1303,6 +1377,7 @@ const GenerateForm = () => {
         defaulValue.achievements = getAchievments(formData.text);
         defaulValue.languages = getLanguages(formData.text);
         defaulValue.computerSkills = getComputerSkills(formData.text);
+        defaulValue.others = getInterests(formData.text);
         console.log(defaulValue);
         setValues(defaulValue);
     }
